@@ -1,4 +1,4 @@
-# Lab01 - Introducción a la lógica combinacional
+# Lab02 - Sumador de 4 bits
 
 # Integrantes
 
@@ -12,267 +12,312 @@
 
 # Informe
 
-## Índice
+Indice:
 
-1. [Documentación del diseño implementado](#1-documentación-del-diseño-implementado)
-2. [Simulaciones](#2-simulaciones)
-3. [Evidencias de implementación](#3-evidencias-de-implementación)
-4. [Conclusiones](#4-conclusiones)
+1. [Documentación](#documentación-de-los-circuitos-implementados-implementado)
+
+2. [Simulaciones](#simulaciones)
+
+3. [Evidencias de implementación](#evidencias-de-implementación)
+
+4. [Conclusiones](#conclusiones)
+
 5. [Referencias](#referencias)
 
 ---
 
-# 1. Documentación del diseño implementado
+## 1. Documentación del diseño implementado
 
-Durante el desarrollo de esta práctica de laboratorio se trabajó con diferentes circuitos pertenecientes a la lógica combinacional utilizando el lenguaje de descripción de hardware Verilog.
+En esta práctica de laboratorio se desarrolló un sumador de 4 bits utilizando como base un módulo sumador completo de 1 bit previamente elaborado.
 
-La actividad estuvo conformada por tres partes principales. En la primera se implementaron diferentes compuertas lógicas digitales. Posteriormente, se desarrolló un circuito combinacional capaz de determinar si un número binario de tres bits corresponde a un número primo. Finalmente, se realizó el diseño de un sumador completo de un bit.
+El propósito principal de la actividad fue aprender a reutilizar módulos mediante la creación de instancias en Verilog, permitiendo construir un circuito de mayor capacidad a partir de un bloque más pequeño.
 
-Los sistemas combinacionales se caracterizan porque sus salidas dependen únicamente de los valores que se encuentran presentes en sus entradas. Esto significa que el circuito no almacena estados anteriores, sino que genera una respuesta de acuerdo con la combinación actual de las señales de entrada [1].
+El sumador de 4 bits permite realizar operaciones entre dos números binarios de cuatro bits. Para su construcción se utilizaron cuatro sumadores de 1 bit conectados de manera consecutiva, de forma que el acarreo generado por una etapa pueda ser utilizado por la siguiente.
 
-El objetivo principal de la práctica fue comprender y aplicar conceptos fundamentales de la lógica digital mediante la descripción, implementación y simulación de circuitos utilizando Verilog.
+El circuito cuenta con dos entradas principales de cuatro bits, A y B, además de una entrada de acarreo inicial denominada `Cin`.
 
----
+Las salidas del diseño son `Sum[3:0]`, que corresponde al resultado de la operación, y `Cout`, que representa el acarreo final generado por el circuito.
 
-## 1.1 Compuertas lógicas
+Durante la práctica también se trabajó en la automatización de las pruebas mediante ciclos `for`. Esto permitió comprobar diferentes combinaciones de entrada sin necesidad de escribir manualmente cada caso de prueba.
 
-La primera parte de la práctica consistió en desarrollar diferentes compuertas lógicas digitales mediante el lenguaje Verilog. Para cada una de ellas se realizó la descripción del hardware y posteriormente se comprobó su funcionamiento mediante simulaciones.
+Para el desarrollo de la actividad se utilizaron herramientas de programación y simulación como Verilog y Visual Studio Code, además de las herramientas empleadas para la verificación del diseño digital.
 
-Las compuertas implementadas fueron:
+### 1.1 Sumador de 4 bits
 
-- **NOT**
-- **AND**
-- **OR**
-- **XOR**
-- **XNOR**
+El sumador de 4 bits se construyó mediante cuatro instancias del módulo sumador de 1 bit.
 
-Cada una de estas compuertas realiza una operación lógica específica sobre una o varias señales binarias de entrada.
+Cada instancia procesa una posición determinada de los números binarios A y B y produce un bit correspondiente de la salida `Sum`.
 
-Las principales características de las compuertas utilizadas son las siguientes:
+El circuito se encuentra organizado desde el bit menos significativo hasta el bit más significativo.
 
-- **NOT:** genera el valor lógico opuesto al de la entrada.
+La primera instancia trabaja con `A[0]` y `B[0]`. Su salida de acarreo se conecta a la siguiente instancia mediante la señal `C0`.
 
-- **AND:** produce una salida igual a 1 únicamente cuando sus dos entradas son iguales a 1.
+La segunda instancia utiliza `C0` como acarreo de entrada y genera `C1`.
 
-- **OR:** genera una salida igual a 1 cuando al menos una de sus entradas tiene un valor lógico alto.
+Posteriormente, la tercera instancia recibe `C1` y genera `C2`.
 
-- **XOR:** produce una salida igual a 1 cuando las entradas presentan valores diferentes.
+Finalmente, la cuarta instancia recibe `C2` y produce el acarreo final `Cout`.
 
-- **XNOR:** genera una salida igual a 1 cuando las dos entradas poseen el mismo valor lógico [1], [2].
+La cadena de acarreo puede representarse de la siguiente manera:
 
-Para verificar el funcionamiento de cada una de las compuertas se tuvieron en cuenta sus respectivas tablas de verdad y se evaluaron todas las combinaciones posibles de las señales de entrada.
+```text
+Cin → C0 → C1 → C2 → Cout
+```
 
-**Código utilizado para la implementación de las compuertas:**
+De esta manera, los cuatro módulos de 1 bit trabajan conjuntamente para realizar la operación correspondiente a un sumador de 4 bits.
 
-![Compuertas lógicas](/COMP.jpeg)
+![Diagrama de bloques del sumador de 4 bits](/dsdf.png)
 
-*Figura 1. Implementación de las compuertas lógicas mediante Verilog.*
+*Figura 1. Diagrama de bloques del sumador de 4 bits.*
 
-### Video de funcionamiento de las compuertas lógicas
+### 1.2 Instanciación de los módulos
 
-[Ver video de la práctica de compuertas lógicas](https://youtube.com/shorts/2mP-Xwf5Yz0?si=uUStz3KMFtKHlcDq)
+Una de las principales características de la práctica fue la reutilización del módulo `sumador_1bit`.
 
----
+La instanciación permite utilizar un módulo previamente creado dentro de otro módulo de mayor tamaño. Esto facilita el desarrollo de sistemas digitales más complejos, ya que no es necesario volver a escribir toda la lógica correspondiente al módulo original.
 
-## 1.2 Verificador de números primos
+Para el sumador de 4 bits se utilizaron cuatro instancias independientes:
 
-La segunda parte de la práctica consistió en diseñar un circuito combinacional capaz de identificar si un número representado mediante tres bits corresponde a un número primo.
+- `bit0`
+- `bit1`
+- `bit2`
+- `bit3`
 
-Al utilizar tres bits como entrada, es posible representar números desde `000` hasta `111`, los cuales corresponden a los valores decimales comprendidos entre 0 y 7.
+Cada instancia se conecta a los bits correspondientes de las entradas A y B y a la señal de acarreo que corresponde a su posición.
 
-Dentro de este intervalo, los números que son primos corresponden a:
+La estructura utilizada permite que el resultado de una etapa sea utilizado por la siguiente mediante las señales de acarreo.
 
-- 2
-- 3
-- 5
-- 7
+![Código del sumador de 4 bits](/SUMA.jpeg)
 
-Las representaciones binarias de estos números son las siguientes:
+*Figura 2. Código Verilog utilizado para implementar el sumador de 4 bits mediante instancias.*
 
-| Número decimal | Representación binaria |
-|:---:|:---:|
-| 2 | 010 |
-| 3 | 011 |
-| 5 | 101 |
-| 7 | 111 |
+### 1.3 Funcionamiento de los acarreos
 
-El circuito debe activar su salida cuando la combinación presente en sus entradas corresponda a alguno de estos valores.
+Los acarreos son necesarios para transportar la información generada durante la suma de una posición binaria hacia la siguiente.
 
-Por el contrario, para los números que no son primos, la salida debe permanecer desactivada.
+El funcionamiento de las señales de acarreo dentro del circuito es el siguiente:
 
-El desarrollo de este circuito permitió aplicar conocimientos relacionados con las tablas de verdad, el álgebra booleana y las funciones combinacionales [1].
+- `Cin`: corresponde al acarreo inicial que ingresa al primer sumador.
+- `C0`: es el acarreo generado por el primer sumador.
+- `C1`: corresponde al acarreo producido por el segundo sumador.
+- `C2`: corresponde al acarreo generado por el tercer sumador.
+- `Cout`: representa el acarreo final producido por el cuarto sumador.
 
-**Código utilizado para la implementación del verificador:**
+Por lo tanto, el recorrido de los acarreos se realiza de forma consecutiva:
 
-![Verificador de números primos](/PRIMO.jpeg)
+```text
+Cin → Sumador 1 → C0 → Sumador 2 → C1 → Sumador 3 → C2 → Sumador 4 → Cout
+```
 
-*Figura 2. Código Verilog del circuito verificador de números primos.*
+Este método permite conectar los cuatro sumadores de 1 bit para obtener un único circuito capaz de realizar operaciones con números de cuatro bits.
 
-### Video de funcionamiento del verificador de números primos
+### 1.4 Automatización de pruebas mediante `for`
 
-[Ver video del verificador de números primos](https://youtube.com/shorts/7eX1FzHauPU?si=RQwMiMPHG3TSZi5n)
+Uno de los aspectos que se buscó desarrollar durante esta práctica fue la utilización de ciclos `for` para realizar pruebas automáticamente.
 
----
+Las entradas `A` y `B` están formadas por cuatro bits. Por esta razón, cada una puede representar 16 valores diferentes, comprendidos entre 0 y 15.
 
-## 1.3 Sumador completo de 1 bit
+Es decir:
 
-La tercera parte de la práctica correspondió al diseño de un sumador completo de un bit, también conocido como *Full Adder*.
+```text
+A = 0 hasta 15
+B = 0 hasta 15
+```
 
-Este circuito permite realizar la suma de dos bits y, adicionalmente, considerar un bit correspondiente al acarreo de entrada.
+Al combinar todos los valores posibles de ambas entradas se obtiene:
 
-El sumador completo posee tres señales de entrada:
+```text
+16 × 16 = 256 combinaciones
+```
 
-- **A:** primer bit de entrada.
-- **B:** segundo bit de entrada.
-- **Ci:** bit de acarreo de entrada.
+El uso de dos ciclos `for` permite recorrer automáticamente estas combinaciones.
 
-Como resultado de la operación se generan dos salidas:
+Esto significa que no es necesario escribir manualmente las 256 pruebas en el código de simulación. En cambio, los ciclos se encargan de asignar progresivamente los valores a las entradas A y B.
 
-- **So:** representa el resultado de la suma.
-- **Co:** representa el acarreo generado durante la operación.
+Por esta razón, el `for` puede funcionar como un **generador automático de pruebas**, facilitando la verificación del circuito y reduciendo considerablemente la cantidad de código necesario para realizar las pruebas.
 
-Debido a que el circuito cuenta con tres entradas binarias, existen ocho posibles combinaciones de entrada.
+Además, se establece un intervalo de tiempo entre cada combinación para que el simulador pueda registrar correctamente el comportamiento de las señales.
 
-A continuación se presenta la tabla de verdad del sumador completo de 1 bit:
+![Código de simulación](/simulacion%204.PNG)
 
-| A | B | Ci | Co | So |
-|:---:|:---:|:---:|:---:|:---:|
-| 0 | 0 | 0 | 0 | 0 |
-| 0 | 0 | 1 | 0 | 1 |
-| 0 | 1 | 0 | 0 | 1 |
-| 0 | 1 | 1 | 1 | 0 |
-| 1 | 0 | 0 | 0 | 1 |
-| 1 | 0 | 1 | 1 | 0 |
-| 1 | 1 | 0 | 1 | 0 |
-| 1 | 1 | 1 | 1 | 1 |
+*Figura 3. Código utilizado para realizar automáticamente las pruebas mediante ciclos `for`.*
 
-A partir de la tabla de verdad se puede observar que la salida **So** representa el resultado obtenido al sumar los tres bits de entrada.
+### 1.5 Generación del archivo de simulación
 
-Por otra parte, la salida **Co** se activa cuando la operación genera un acarreo hacia una posición binaria superior.
+Para observar los resultados de las pruebas se generó un archivo de simulación con extensión `.vcd`.
 
-Las expresiones lógicas del sumador completo son:
+Este archivo permite almacenar los cambios producidos en las diferentes señales durante la ejecución del testbench.
 
-    So = A XOR B XOR Ci
+De esta manera, posteriormente es posible visualizar las formas de onda y analizar el comportamiento de las entradas y salidas del circuito.
 
-Para la salida de acarreo:
+Las señales que pueden ser observadas durante la simulación incluyen las entradas A, B y Cin, además de las salidas Sum y Cout.
 
-    Co = AB + ACi + BCi
-
-Estas expresiones permiten construir el circuito utilizando diferentes compuertas lógicas. La salida de suma se obtiene mediante operaciones XOR, mientras que la salida de acarreo puede implementarse mediante operaciones AND y OR.
-
-**Código utilizado para la implementación del sumador:**
-
-![Sumador completo de 1 bit](/SUMA.jpeg)
-
-*Figura 3. Implementación del sumador completo de 1 bit.*
-
-### Video de funcionamiento del sumador completo de 1 bit
-
-[Ver video del sumador de 1 bit](https://youtube.com/shorts/kAMwP_q6PQ4?si=WbGBHEaAVNdeOfpQ)
+El uso del archivo de simulación facilita la verificación del circuito y permite identificar posibles errores en el diseño antes de realizar una implementación física.
 
 ---
 
-# 2. Simulaciones
+## 2. Simulaciones
 
-Después de realizar la descripción de los circuitos en Verilog, se efectuaron las simulaciones correspondientes con el objetivo de comprobar su funcionamiento.
+Una vez realizado el diseño del sumador de 4 bits, se procedió a realizar las pruebas correspondientes mediante simulación.
 
-Las simulaciones permiten analizar la respuesta de las salidas frente a las diferentes combinaciones posibles de las señales de entrada. De esta forma, se puede verificar que los resultados generados por cada circuito coincidan con el comportamiento esperado según las tablas de verdad y las funciones lógicas utilizadas [1], [2].
+El objetivo de esta etapa fue verificar que las cuatro instancias del sumador de 1 bit estuvieran conectadas correctamente y que los acarreos se transmitieran de una etapa a otra.
 
----
+También se utilizó el testbench desarrollado con ciclos `for` para automatizar las diferentes pruebas del circuito.
 
-## 2.1 Simulación de las compuertas lógicas
+### 2.1 Simulación del sumador de 4 bits
 
-Para comprobar el funcionamiento de las compuertas lógicas se realizaron pruebas utilizando las diferentes combinaciones posibles de las señales de entrada.
+Durante la simulación se aplicaron diferentes valores a las entradas A y B.
 
-En el caso de la compuerta NOT se analizaron los dos estados posibles de su única entrada.
+Debido a que cada entrada tiene cuatro bits, existen 16 valores posibles para cada una.
 
-Para las compuertas AND, OR, XOR y XNOR se evaluaron las cuatro combinaciones posibles de las entradas A y B.
+Al combinar los valores de ambas entradas se obtienen:
 
-![Simulación de compuertas](/compuertas.jpeg)
+```text
+16 × 16 = 256 combinaciones
+```
 
-*Figura 4. Simulación de las compuertas lógicas.*
+El uso de los ciclos `for` permitió recorrer estas combinaciones automáticamente.
 
-Los resultados obtenidos permitieron comprobar que cada una de las salidas responde correctamente de acuerdo con la operación lógica que representa.
+Esto permitió realizar una comprobación más completa del funcionamiento del circuito, evitando tener que introducir manualmente cada uno de los valores.
 
----
+![Simulación del sumador de 4 bits](/simulacion4.4.PNG)
 
-## 2.2 Simulación del verificador de números primos
+*Figura 4. Simulación del sumador de 4 bits.*
 
-Para comprobar el funcionamiento del verificador se probaron todas las combinaciones binarias posibles de las tres entradas.
+### 2.2 Verificación de las salidas
 
-Durante la simulación se verificó que la salida se activa únicamente cuando las entradas representan un número primo dentro del intervalo comprendido entre 0 y 7.
+Durante la simulación se observaron las salidas `Sum` y `Cout`.
 
-Las combinaciones correspondientes a los números primos son:
+La salida `Sum[3:0]` representa los cuatro bits correspondientes al resultado de la operación.
 
-    010 = 2
-    011 = 3
-    101 = 5
-    111 = 7
+Por otro lado, `Cout` representa el acarreo final producido por el circuito cuando el resultado requiere un bit adicional.
 
-Para las demás combinaciones posibles, la salida del circuito permanece desactivada.
+También se verificó el comportamiento de los acarreos intermedios:
 
-![Simulación del verificador de números primos](/VERIFICADOR.jpeg)
+```text
+C0
+C1
+C2
+```
 
-*Figura 5. Simulación del circuito verificador de números primos.*
+Estos permiten transportar el acarreo entre los cuatro sumadores de 1 bit.
 
-Los resultados obtenidos permitieron confirmar que el diseño identifica correctamente las combinaciones binarias correspondientes a los números primos.
+La correcta transmisión de estas señales es necesaria para obtener el resultado esperado en el sumador de 4 bits.
 
----
+### 2.3 Pruebas automáticas mediante `for`
 
-## 2.3 Simulación del sumador completo de 1 bit
+El ciclo `for` utilizado en el testbench permitió generar automáticamente las combinaciones de las entradas.
 
-Para verificar el funcionamiento del sumador completo se analizaron las ocho combinaciones posibles de las entradas A, B y Ci.
+El primer ciclo recorre los valores posibles de una de las entradas, mientras que el segundo ciclo recorre los valores de la otra entrada.
 
-Durante la simulación se observaron las respuestas generadas en las salidas So y Co.
+De esta manera se generan automáticamente:
 
-La salida **So** representa el resultado de la suma binaria de las tres señales de entrada.
+```text
+A = 0, 1, 2, ..., 15
+B = 0, 1, 2, ..., 15
+```
 
-Por otra parte, la salida **Co** se activa en aquellas combinaciones donde la operación genera un bit de acarreo.
+y en total:
 
-![Simulación del sumador de 1 bit](/sumador%20de%201%20bit.jpeg)
+```text
+256 combinaciones
+```
 
-*Figura 6. Simulación del sumador completo de 1 bit.*
+Esto permite utilizar el testbench como un generador automático de pruebas, facilitando la comprobación del circuito.
 
-Los resultados obtenidos permitieron comprobar que el circuito implementado cumple correctamente con el comportamiento establecido en la tabla de verdad del sumador completo.
-
----
-
-# 3. Evidencias de implementación
-
-Como parte del desarrollo de la práctica se realizaron diferentes evidencias relacionadas con el funcionamiento de los circuitos implementados.
-
-Las evidencias corresponden a las tres actividades principales desarrolladas durante el laboratorio:
-
-1. Implementación y funcionamiento de las compuertas lógicas.
-2. Funcionamiento del circuito verificador de números primos.
-3. Funcionamiento del sumador completo de 1 bit.
-
-Los videos presentados en las secciones correspondientes permiten observar de manera práctica el comportamiento de cada uno de los circuitos desarrollados.
-
-Estas evidencias permiten relacionar los resultados obtenidos durante las simulaciones con el funcionamiento práctico de los diseños implementados.
+La automatización de las pruebas fue uno de los aspectos principales de aprendizaje de la práctica, ya que permite verificar una gran cantidad de casos sin tener que escribir cada combinación individualmente.
 
 ---
 
-# 4. Conclusiones
+## 3. Evidencias de implementación
 
-El desarrollo de esta práctica permitió aplicar de manera práctica los conocimientos relacionados con la lógica combinacional y el diseño de circuitos digitales mediante el lenguaje Verilog.
+En esta sección se presentan las evidencias relacionadas con el desarrollo y comprobación del sumador de 4 bits.
 
-La implementación de las diferentes compuertas lógicas permitió reforzar la comprensión de las operaciones fundamentales utilizadas en los sistemas digitales y comprobar su comportamiento mediante las distintas combinaciones de sus señales de entrada.
+Las evidencias permiten observar el código utilizado, la estructura del circuito y los resultados obtenidos durante la simulación.
 
-El desarrollo del circuito verificador de números primos permitió aplicar funciones booleanas para identificar combinaciones específicas de valores binarios. Esta actividad permitió relacionar conceptos matemáticos con el diseño de sistemas digitales combinacionales.
+### 3.1 Código del sumador de 4 bits
 
-Por otra parte, la implementación del sumador completo de un bit permitió comprender el proceso de suma binaria y la importancia del acarreo dentro de las operaciones realizadas por los sistemas digitales.
+La siguiente imagen corresponde al código utilizado para implementar el módulo sumador de 4 bits.
 
-Las simulaciones fueron fundamentales para comprobar el funcionamiento de cada uno de los diseños, ya que permitieron verificar que las respuestas generadas coincidieran con los resultados esperados según las tablas de verdad.
+En este código se realiza la instanciación de cuatro sumadores de 1 bit y se establecen las conexiones correspondientes entre los diferentes acarreos.
 
-En general, la práctica permitió fortalecer los conocimientos relacionados con los circuitos combinacionales y adquirir experiencia en la descripción, diseño y simulación de sistemas digitales mediante Verilog.
+![Código del sumador de 4 bits](/sumador4.PNG)
+
+*Figura 5. Código del sumador de 4 bits.*
+
+### 3.2 Código de simulación
+
+La siguiente evidencia corresponde al código utilizado para realizar la simulación del circuito.
+
+En este testbench se utilizaron ciclos `for` para generar automáticamente las combinaciones de las entradas A y B.
+
+![Código de simulación](/simulacion%204.PNG)
+
+*Figura 6. Código del testbench utilizado para realizar las pruebas automáticas.*
+
+### 3.3 Diagrama de bloques
+
+El siguiente diagrama muestra la estructura utilizada para conectar los cuatro sumadores de 1 bit.
+
+En él se pueden observar las señales de entrada, los resultados individuales y la cadena de acarreos entre las diferentes etapas.
+
+![Diagrama de bloques del sumador](/dsdf.png)
+
+*Figura 7. Diagrama de bloques del sumador de 4 bits.*
+
+### 3.4 Resultado de la simulación
+
+La siguiente imagen presenta el resultado obtenido durante la simulación del circuito.
+
+En ella se pueden observar las diferentes señales generadas durante las pruebas realizadas mediante el testbench.
+
+![Resultado de la simulación](/simulacion4.4.PNG)
+
+*Figura 8. Resultado de la simulación del sumador de 4 bits.*
+
+### 3.5 Videos de funcionamiento
+
+A continuación se presentan los espacios destinados a los videos realizados durante la práctica, donde se muestra el funcionamiento del sumador de 4 bits.
+
+**Video 1 - Funcionamiento del sumador de 4 bits**
+
+https://youtube.com/shorts/hdh7RilTL9s?si=as92HUVJaLVJ658D
+
 
 ---
 
-# Referencias
+## 4. Conclusiones
 
-[1] Intel Corporation, *Intel Quartus Prime Software*. Disponible en: https://www.intel.com/content/www/us/en/software/programmable/quartus-prime/overview.html
+El desarrollo de esta práctica permitió comprender cómo es posible construir un circuito digital de mayor capacidad utilizando módulos previamente diseñados.
 
-[2] Microsoft, *Visual Studio Code*. Disponible en: https://code.visualstudio.com/
+Mediante la instanciación del sumador de 1 bit se construyó un sumador de 4 bits utilizando cuatro módulos conectados de forma consecutiva.
 
-[3] IEEE, *Verilog Hardware Description Language*.
+Esta metodología permitió aplicar un diseño estructural y modular en Verilog, demostrando la utilidad de reutilizar bloques funcionales dentro de un sistema digital.
+
+También se comprendió la función de las señales de acarreo dentro del circuito. Las señales `C0`, `C1` y `C2` permiten transmitir el acarreo generado en cada posición hacia la siguiente etapa, mientras que `Cout` corresponde al acarreo final.
+
+Otro de los principales aprendizajes fue la utilización de ciclos `for` dentro del código de simulación.
+
+Debido a que A y B poseen cuatro bits, cada una puede tomar 16 valores diferentes. Al combinar todas las posibilidades de ambas entradas se obtienen 256 combinaciones.
+
+Los ciclos `for` permiten generar automáticamente estas combinaciones, evitando tener que escribir manualmente cada una de las pruebas en el testbench.
+
+Por lo tanto, el uso de ciclos permite realizar una verificación más eficiente y organizada del diseño.
+
+Finalmente, mediante la simulación fue posible observar el comportamiento de las entradas, las salidas y los diferentes acarreos del circuito. Esto permitió comprobar la importancia de verificar un diseño digital antes de realizar su implementación física.
+
+En conclusión, la práctica permitió fortalecer los conocimientos relacionados con la instanciación de módulos, el diseño estructural en Verilog, el manejo de acarreos y la automatización de pruebas mediante ciclos `for`.
+
+---
+
+## Referencias
+
+[1] IEEE, *IEEE Standard for Verilog Hardware Description Language*, IEEE Std. 1364.
+
+[2] Intel Corporation, *Intel Quartus Prime Software*, herramienta utilizada para el desarrollo y verificación de diseños digitales.
+
+[3] Microsoft, *Visual Studio Code*, editor utilizado para la escritura y organización de los archivos desarrollados en Verilog.
+
+[4] GTKWave, *GTKWave Waveform Viewer*, herramienta utilizada para visualizar las señales generadas durante la simulación.
+
+[5] Digital ECCI, *Técnicas Digitales ECCI 2026-II*, material correspondiente al laboratorio de sumador de 4 bits.
